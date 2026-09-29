@@ -16,6 +16,8 @@ const COUNTER_KEY = 'shortener:counter'
 const COUNTER_START = 100000000 // starts codes at 5 characters instead of 1
 const CACHE_TTL_SECONDS = 3600
 const MAX_EXPIRY_SECONDS = 365 * 24 * 3600
+const RATE_LIMIT_MAX = 10
+const RATE_LIMIT_WINDOW_SECONDS = 60
 
 function encodeBase62(num) {
   let out = ''
@@ -33,6 +35,15 @@ function isValidHttpUrl(value) {
   } catch {
     return false
   }
+}
+
+async function checkRateLimit(ip) {
+  const key = `shortener:ratelimit:${ip}`
+  const count = await redis.incr(key)
+  if (count === 1) {
+    await redis.expire(key, RATE_LIMIT_WINDOW_SECONDS)
+  }
+  return count <= RATE_LIMIT_MAX
 }
 
 // The cache is an optimization, not a dependency: if Redis fails, redirects
@@ -55,12 +66,38 @@ async function cacheSet(key, value, ttlSeconds) {
 }
 
 // Not awaited by callers: the redirect goes out first, the click is
-// recorded afterwards. (The advanced tier replaces this with proper analytics.)
+// queued afterwards, and a periodic flush batches writes to MongoDB.
 function recordClick(code) {
-  Url.updateOne({ shortCode: code }, { $inc: { clicks: 1 } }).catch((err) =>
-    console.error('Click record failed:', err.message)
+  redis.rpush('shortener:clickqueue', JSON.stringify({ code, at: Date.now() })).catch((err) =>
+    console.error('Click queue push failed:', err.message)
   )
 }
+
+async function flushClicks() {
+  const BATCH_SIZE = 50
+  const items = []
+
+  for (let i = 0; i < BATCH_SIZE; i++) {
+    const raw = await redis.lpop('shortener:clickqueue')
+    if (!raw) break
+    items.push(JSON.parse(raw))
+  }
+
+  if (items.length === 0) return
+
+  const counts = {}
+  for (const { code } of items) {
+    counts[code] = (counts[code] || 0) + 1
+  }
+
+  await Promise.all(
+    Object.entries(counts).map(([code, n]) =>
+      Url.updateOne({ shortCode: code }, { $inc: { clicks: n } })
+    )
+  )
+}
+
+setInterval(flushClicks, 3000)
 
 // Redis is not the source of truth for the counter. If it ever restarts empty,
 // re-seed it from the highest seq already stored in MongoDB.
@@ -76,6 +113,12 @@ app.post('/api/shorten', async (req, res) => {
 
   if (!longUrl || !isValidHttpUrl(longUrl)) {
     return res.status(400).json({ error: 'A valid http(s) URL is required' })
+  }
+
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+  const allowed = await checkRateLimit(ip)
+  if (!allowed) {
+    return res.status(429).json({ error: 'Too many links created. Try again in a minute.' })
   }
 
   let expiresAt
