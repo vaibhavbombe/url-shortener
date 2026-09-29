@@ -1,16 +1,13 @@
 const mongoose = require('mongoose')
 
-const urlSchema = new mongoose.Schema({
-  seq: { type: Number, index: true },
-  shortCode: { type: String, required: true, unique: true },
-  longUrl: { type: String, required: true },
-  clicks: { type: Number, default: 0 },
-  expiresAt: { type: Date },
-  createdAt: { type: Date, default: Date.now },
-})
+async function connectMongo() {
+  const uri = process.env.MONGODB_URI
+  if (!uri) {
+    throw new Error('MONGODB_URI is not set')
+  }
 
-// TTL index: MongoDB deletes each document once its expiresAt time passes.
-// Documents with no expiresAt are never touched.
-urlSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+  await mongoose.connect(uri)
+  console.log('MongoDB connected')
+}
 
-module.exports = mongoose.model('Url', urlSchema)
+module.exports = connectMongo

@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
-require('./config/mongo')
+const connectMongo = require('./config/mongo')
 const redis = require('./config/redis')
 const Url = require('./models/Url')
 
@@ -157,7 +157,8 @@ app.get('/:code', async (req, res) => {
 })
 
 const PORT = process.env.PORT || 3001
-initCounter()
+connectMongo()
+  .then(() => initCounter())
   .then(() => app.listen(PORT, () => console.log(`Server running on port ${PORT}`)))
   .catch((err) => {
     console.error('Startup failed:', err)
