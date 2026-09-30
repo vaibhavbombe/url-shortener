@@ -6,7 +6,7 @@ const redis = require('./config/redis')
 const Url = require('./models/Url')
 
 const app = express()
-app.use(cors())
+app.use(cors({ origin: 'https://your-actual-dashboard.vercel.app' }))
 app.use(express.json())
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001'
@@ -46,8 +46,6 @@ async function checkRateLimit(ip) {
   return count <= RATE_LIMIT_MAX
 }
 
-// The cache is an optimization, not a dependency: if Redis fails, redirects
-// fall back to MongoDB instead of erroring.
 async function cacheGet(key) {
   try {
     return await redis.get(key)
