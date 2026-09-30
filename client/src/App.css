@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; background: #0B0B0D; overflow: hidden; }
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0B0B0D;
+  color: #F5F5F3;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #26262A;
+}
+.nav-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #FF6B45;
+}
+.nav-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: #6B6B70;
+}
+
+.dashboard-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 1.25rem;
+  padding: 1.5rem 2rem;
+  min-height: 0;
+  overflow: hidden;
+}
+.col { min-height: 0; overflow-y: auto; }
+
+.panel {
+  background: #17171A;
+  border: 1px solid #26262A;
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.panel h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: #FF6B45;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.col-middle canvas { flex: 1; min-height: 0; }
+
+.submit-form {
+  background: #17171A;
+  border: 1px solid #26262A;
+  border-radius: 10px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.submit-form label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #A6A6AC;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.secondary-label { margin-top: 0.3rem; }
+.submit-form input {
+  background: #0B0B0D;
+  border: 1px solid #26262A;
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  color: #F5F5F3;
+  font-size: 0.82rem;
+  outline: none;
+}
+.submit-form input:focus { border-color: #FF6B45; }
+.submit-form button {
+  background: #FF6B45;
+  color: #0B0B0D;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0.2rem;
+}
+.submit-form button:hover:not(:disabled) { background: #B84E32; }
+.submit-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.result-box { font-size: 0.78rem; margin-top: 0.3rem; word-break: break-all; }
+.result-box.ok { display: flex; flex-direction: column; gap: 0.4rem; color: #4AD3C9; }
+.result-box.ok a { color: #4AD3C9; }
+.result-box.error { color: #FF6B45; }
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  background: none;
+  border: 1px solid #26262A;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  color: #A6A6AC;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: #4AD3C9; color: #4AD3C9; }
+
+.table-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+.link-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.78rem; }
+.link-table th:nth-child(1) { width: 55%; }
+.link-table th:nth-child(2) { width: 25%; }
+.link-table th:nth-child(3) { width: 20%; }
+.link-table th {
+  text-align: left;
+  padding: 0.4rem;
+  color: #A6A6AC;
+  font-weight: 500;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid #26262A;
+  position: sticky;
+  top: 0;
+  background: #17171A;
+}
+.link-table td { padding: 0.55rem 0.4rem; border-bottom: 1px solid #1E1E22; overflow: hidden; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.empty-row { text-align: center; color: #6B6B70; padding: 1.5rem !important; }
+.open-link { color: #6B6B70; }
+.open-link:hover { color: #FF6B45; }
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-top: 1px solid #26262A;
+  font-size: 0.75rem;
+  color: #6B6B70;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  html, body, #root { overflow: auto; }
+  .app-footer { flex-direction: column; gap: 0.3rem; }
+}
