@@ -4,8 +4,8 @@ A link-shortening service built to explore a classic systems-design problem:
 redirects need to be near-instant and happen constantly, while creating a
 link must never produce a duplicate, even under concurrent requests.
 
-**Live demo:** _add URL once deployed_
-**Dashboard:** this repo (`/client` folder)
+**Live demo:** https://url-shortener-qsgat8iis-vsb10.vercel.app
+**API:** https://url-shortener-0276.onrender.com
 
 ---
 
